@@ -1,4 +1,5 @@
 const express = require("express")
+const mongoose = require("mongoose")
 const ArticleSchema = require("./schema")
 const ArticleRouter = express.Router()
 const uniqid = require("uniqid")
@@ -97,20 +98,18 @@ ArticleRouter.post("/:id", async (req, res, next) => {
 })
 
 ArticleRouter.delete("/:id/reviews/:ReviewID", async (req, res, next) => {
-	let review = { ...req.body }
-	review._id = uniqid()
 	try {
 		const article = await ArticleSchema.findByIdAndUpdate(
 			req.params.id,
 			{
 				$pull: {
-					reviews: review,
+					reviews: { _id: req.params.ReviewID },
 				},
 			},
 			{ runValidators: true, new: true }
 		)
 		if (article) {
-			res.send(article)
+			res.send("Deleted")
 		} else {
 			const error = new Error(`Article with id ${req.params.id} not found`)
 			error.httpStatusCode = 404
